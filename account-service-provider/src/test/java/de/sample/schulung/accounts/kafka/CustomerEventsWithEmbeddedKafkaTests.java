@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.from;
 
@@ -48,6 +49,14 @@ class CustomerEventsWithEmbeddedKafkaTests {
     assertThat(record)
       .returns("customer-events", from(ConsumerRecord::topic))
       .returns(customer.getUuid().toString(), from(ConsumerRecord::key));
+
+    assertThatJson(record.value())
+      .isObject()
+      .containsEntry("event_type", "created")
+      .containsEntry("customer_uuid", customer.getUuid().toString())
+      .node("customer")
+      .isObject()
+      .containsEntry("name", "Tom");
 
   }
 
