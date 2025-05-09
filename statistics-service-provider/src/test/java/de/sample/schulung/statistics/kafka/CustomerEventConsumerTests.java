@@ -71,15 +71,11 @@ public class CustomerEventConsumerTests {
       String.format(
         """
             {
-              "eventType" : "created",
-              "customerUuid" : "%s",
+              "event_type" : "created",
+              "customer_uuid" : "%s",
               "customer" : {
                 "name" : "Tom Mayer",
-                "birthdate" : [
-                  2020,
-                  4,
-                  25
-                ],
+                "birthdate" : "2020-04-25",
                 "state" : "active"
               }
             }

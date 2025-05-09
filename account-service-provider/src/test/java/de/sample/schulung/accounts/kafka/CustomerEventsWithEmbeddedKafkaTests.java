@@ -10,7 +10,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.time.Month;
 
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.from;
 
@@ -34,7 +36,7 @@ class CustomerEventsWithEmbeddedKafkaTests {
   ) {
     var customer = new Customer();
     customer.setName("Tom");
-    customer.setDateOfBirth(LocalDate.now().minusYears(20));
+    customer.setDateOfBirth(LocalDate.of(1985, Month.JULY, 30));
     customer.setState(Customer.CustomerState.ACTIVE);
     customersService.createCustomer(customer);
 
@@ -48,6 +50,15 @@ class CustomerEventsWithEmbeddedKafkaTests {
     assertThat(record)
       .returns("customer-events", from(ConsumerRecord::topic))
       .returns(customer.getUuid().toString(), from(ConsumerRecord::key));
+
+    assertThatJson(record.value())
+      .isObject()
+      .containsEntry("event_type", "created")
+      .containsEntry("customer_uuid", customer.getUuid().toString())
+      .node("customer")
+      .isObject()
+      .containsEntry("name", "Tom")
+      .containsEntry("birthdate", "1985-07-30");
 
   }
 
